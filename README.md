@@ -1,40 +1,31 @@
-# AI Advisor Web (Vercel-ready)
+## AI Advisor Web (Vercel-ready)
 
-A minimal Next.js app that serves:
+Minimal Next.js app that serves:
 - `/api/chat`: RAG + OpenAI chat over the provided catalog links.
-- `/api/transcript`: Returns recent transcript for mirroring in the MAUI app.
-- `/` UI: simple chat page that streams responses.
+- `/api/transcript`: returns recent transcript for mirroring in MAUI.
+- `/`: lightweight chat UI with streaming.
 
-## Setup
-1) Install deps:
-```
-npm install
-```
-2) Env vars (do NOT commit):
-```
-OPENAI_API_KEY=your-key
-```
-Set in Vercel dashboard for deployment.
+### Setup
+1) Install: `npm install`
+2) Env (local, do not commit): create `.env.local` with `OPENAI_API_KEY=your-key`
+3) Dev: `npm run dev` then open http://localhost:3000
 
-3) Dev:
-```
-npm run dev
-```
+### Deploy (GitHub + Vercel)
+- Root Directory: `ai-advisor-web`
+- Framework: Next.js
+- Install: `npm install`
+- Build: `next build`
+- Output: `.next`
+- Env var: `OPENAI_API_KEY` in Vercel project settings (Production, and Preview if needed).
+- Redeploy after setting env.
 
-4) Deploy:
-```
-vercel
-```
-Then set `ChatUrl` and `TranscriptEndpoint` in `Dashboard/Services/AiAdvisorConfig.cs` to your deployed URL.
+### How it works
+- `lib/sources.ts`: catalog URLs
+- `lib/ingest.ts`: fetch + chunk + embed (cached in-memory on cold start)
+- `lib/vectorStore.ts`: in-memory cosine search
+- `app/api/chat/route.ts`: streams ChatGPT answer, appends to transcript
+- `app/api/transcript/route.ts`: returns messages by `sessionId` (default `demo`)
 
-## How it works
-- `lib/sources.ts`: catalog URLs.
-- `lib/ingest.ts`: fetch + chunk + embed once per cold start.
-- `lib/vectorStore.ts`: in-memory cosine search (swap to persistent store later).
-- `app/api/chat/route.ts`: streams ChatGPT answer and appends to transcript memory.
-- `app/api/transcript/route.ts`: returns messages by `sessionId` (default `demo`).
-
-## Notes
-- Uses `gpt-4o-mini` for cost/latency; adjust in `app/api/chat/route.ts`.
-- In-memory transcript/store reset on cold start; for production, back with a DB or cache.***
-
+### Notes
+- Uses `gpt-4o-mini` and `text-embedding-3-small`; adjust in `app/api/chat/route.ts` / `lib/ingest.ts`.
+- In-memory stores reset on cold starts; back with a DB/cache for persistence.***

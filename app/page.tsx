@@ -47,7 +47,7 @@ export default function Home() {
   return (
     <main style={{ padding: "20px", maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ margin: "0 0 8px 0" }}>AI Advisor</h1>
-      <p style={{ margin: "0 0 16px 0", color: "#cfd8ff" }}>
+      <p style={{ margin: "0 0 16px 0", color: "var(--muted)" }}>
         Ask about degree plans. Answers cite the catalog. Verify with an official advisor.
       </p>
 
@@ -55,7 +55,14 @@ export default function Home() {
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         rows={4}
-        style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #335", background: "#0b214a", color: "white" }}
+        style={{
+          width: "100%",
+          padding: 12,
+          borderRadius: 8,
+          border: "1px solid #335",
+          background: "#0b214a",
+          color: "white"
+        }}
         placeholder="Example: I am in Applied CS, 45 credits done, want to graduate in 3 terms. What plan should I follow?"
       />
 
@@ -63,14 +70,27 @@ export default function Home() {
         <button
           onClick={ask}
           disabled={loading || !question.trim()}
-          style={{ padding: "10px 14px", borderRadius: 8, border: "none", background: "#FFD204", color: "#003087", fontWeight: 700 }}
+          style={{
+            padding: "10px 14px",
+            borderRadius: 8,
+            border: "none",
+            background: "var(--accent)",
+            color: "#003087",
+            fontWeight: 700
+          }}
         >
           {loading ? "Working..." : "Ask"}
         </button>
         {loading && (
           <button
             onClick={stop}
-            style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #999", background: "#123", color: "#eee" }}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "1px solid #999",
+              background: "#123",
+              color: "#eee"
+            }}
           >
             Stop
           </button>
@@ -82,7 +102,7 @@ export default function Home() {
           marginTop: 16,
           padding: 16,
           borderRadius: 12,
-          background: "#0c2a5c",
+          background: "var(--panel)",
           minHeight: 160,
           whiteSpace: "pre-wrap"
         }}
@@ -92,4 +112,3 @@ export default function Home() {
     </main>
   );
 }
-
