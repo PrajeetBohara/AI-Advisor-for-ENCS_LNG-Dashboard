@@ -1,7 +1,10 @@
-"use client";
-
-import "./styles.css";
+import "./globals.css";
 import { ReactNode } from "react";
+
+export const metadata = {
+  title: "AI Advisor",
+  description: "Academic advising assistant"
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,4 +13,3 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-

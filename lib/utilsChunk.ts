@@ -1,9 +1,10 @@
 import { Chunk } from "./types";
 
 function stripTags(html: string) {
-  return html.replace(/<script[\s\S]*?<\/script>/gi, "")
-             .replace(/<style[\s\S]*?<\/style>/gi, "")
-             .replace(/<[^>]+>/g, " ");
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ");
 }
 
 function normalize(text: string) {
