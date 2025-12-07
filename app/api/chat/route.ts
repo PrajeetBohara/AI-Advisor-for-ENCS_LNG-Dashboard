@@ -2,8 +2,6 @@ import { NextRequest } from "next/server";
 import { openai, SYSTEM_PROMPT } from "../../../lib/model";
 import { ensureIngested } from "../../../lib/ingest";
 import { search } from "../../../lib/vectorStore";
-import { appendTranscript } from "../../../lib/transcriptStore";
-import { TranscriptMessage } from "../../../lib/types";
 
 export const runtime = "nodejs";
 
@@ -60,7 +58,7 @@ export async function POST(req: NextRequest) {
         }
       }
       controller.close();
-      appendTranscript(sessionId, buildTranscript(question, fullText));
+      // Note: The React page will POST Q&A to the local API after receiving the answer
     }
   });
 
@@ -70,13 +68,5 @@ export async function POST(req: NextRequest) {
       "Cache-Control": "no-cache"
     }
   });
-}
-
-function buildTranscript(question: string, answer: string): TranscriptMessage[] {
-  const now = new Date().toISOString();
-  return [
-    { role: "user", content: question, timestamp: now },
-    { role: "assistant", content: answer, timestamp: now }
-  ];
 }
 

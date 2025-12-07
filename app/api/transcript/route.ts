@@ -5,7 +5,12 @@ export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("sessionId") || "demo";
-  const transcript = getTranscript(sessionId);
-  return NextResponse.json(transcript);
+  try {
+    const transcript = await getTranscript(sessionId);
+    return NextResponse.json(transcript);
+  } catch (err) {
+    console.error("Transcript route error:", err);
+    return NextResponse.json([], { status: 200 });
+  }
 }
 
