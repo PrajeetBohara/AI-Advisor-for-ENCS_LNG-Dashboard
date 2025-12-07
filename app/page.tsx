@@ -1,18 +1,37 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Home() {
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [sessionId] = useState("demo");
   const controllerRef = useRef<AbortController | null>(null);
 
+  useEffect(() => {
+    const clearSession = () =>
+      fetch(`/api/transcript/clear?sessionId=${sessionId}`, {
+        method: "POST",
+        keepalive: true
+      }).catch(() => {});
+
+    const handleBeforeUnload = () => {
+      clearSession();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearSession();
+    };
+  }, [sessionId]);
+
   async function ask() {
     if (!question.trim()) return;
     setLoading(true);
-    setAnswer("");
+    setStatus("Sending...");
     controllerRef.current = new AbortController();
 
     const resp = await fetch("/api/chat", {
@@ -33,10 +52,11 @@ export default function Home() {
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-      setAnswer((prev) => prev + decoder.decode(value));
     }
 
     setLoading(false);
+    setQuestion("");
+    setStatus("Sent to advisor");
   }
 
   function stop() {
@@ -48,7 +68,7 @@ export default function Home() {
     <main style={{ padding: "20px", maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ margin: "0 0 8px 0" }}>AI Advisor</h1>
       <p style={{ margin: "0 0 16px 0", color: "var(--muted)" }}>
-        Ask about degree plans. Answers cite the catalog. Verify with an official advisor.
+        Ask about degree plans. Answers will show on the display (not here). Verify with an official advisor.
       </p>
 
       <textarea
@@ -97,17 +117,8 @@ export default function Home() {
         )}
       </div>
 
-      <div
-        style={{
-          marginTop: 16,
-          padding: 16,
-          borderRadius: 12,
-          background: "var(--panel)",
-          minHeight: 160,
-          whiteSpace: "pre-wrap"
-        }}
-      >
-        {answer || (loading ? "Streaming answer..." : "Answer will appear here.")}
+      <div style={{ marginTop: 16, padding: 16, borderRadius: 12, background: "var(--panel)", minHeight: 80, color: "var(--muted)" }}>
+        {loading ? "Sending..." : status || "Messages display on the TV app."}
       </div>
     </main>
   );
