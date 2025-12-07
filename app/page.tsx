@@ -10,11 +10,15 @@ export default function Home() {
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    const clearSession = () =>
-      fetch(`/api/transcript/clear?sessionId=${sessionId}`, {
+    const clearSession = () => {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      fetch(`${apiUrl}/api/transcript/clear`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
         keepalive: true
       }).catch(() => {});
+    };
 
     const handleBeforeUnload = () => {
       clearSession();
@@ -34,9 +38,11 @@ export default function Home() {
     setStatus("Sending...");
     controllerRef.current = new AbortController();
 
+    const userQuestion = question.trim();
+
     const resp = await fetch("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ question, sessionId }),
+      body: JSON.stringify({ question: userQuestion, sessionId }),
       headers: { "Content-Type": "application/json" },
       signal: controllerRef.current.signal
     });
@@ -48,11 +54,22 @@ export default function Home() {
 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
+    let answer = "";
 
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      answer += chunk;
     }
+
+    // POST Q&A to simple API (replace with your API URL)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    fetch(`${apiUrl}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, question: userQuestion, answer })
+    }).catch(() => {});
 
     setLoading(false);
     setQuestion("");
