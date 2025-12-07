@@ -65,11 +65,22 @@ export default function Home() {
 
     // POST Q&A to simple API (replace with your API URL)
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    fetch(`${apiUrl}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, question: userQuestion, answer })
-    }).catch(() => {});
+    try {
+      const response = await fetch(`${apiUrl}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, question: userQuestion, answer })
+      });
+      if (!response.ok) {
+        console.error("Failed to send to local API:", response.status, await response.text());
+        setStatus(`Error: Could not send to local API (${response.status})`);
+      } else {
+        console.log("Successfully sent Q&A to local API");
+      }
+    } catch (err) {
+      console.error("Error sending to local API:", err);
+      setStatus(`Error: ${err instanceof Error ? err.message : "Network error"}`);
+    }
 
     setLoading(false);
     setQuestion("");
